@@ -82,6 +82,10 @@ start_end = []
 width = 1
 spacer = 0
 
+# hash for new DNA combinations for each AA trans
+hatch_dict = {}
+hatch_patterns = ['-', '+', 'x', '\\', '*', 'o', 'O', '.', '/']
+
 for i,strain in enumerate(strains.keys()):
     used_colors_dict = {}
     used_colors = []
@@ -91,7 +95,7 @@ for i,strain in enumerate(strains.keys()):
             # start of seq (not repeat)
             col_dict[repeat] = '#000000'
             col = '#000000'
-            start_end.append(repeat)        
+            start_end.append(repeat)
 
         elif repeat == strains[strain][-1][1]:
             # end of seq (not repeat)
@@ -107,27 +111,31 @@ for i,strain in enumerate(strains.keys()):
             used_colors_dict[col] = [(dna, repeat)]
             hatch=""
         else:
-            # pep same, but DNA diff, make hatch
-            found = 0
-            for d, r in used_colors_dict[col]:
-                try:
-                    assert r == repeat
-                except AssertionError:
-                    print('start, end or error')
-                    print(r)
-                    print(repeat)
-                if dna == d:
-                    found+=1
-                else:
-                    pass
-            used_colors_dict[col].append((dna, repeat))
-            # ocnce it is found, dont hatch it again
-            #if notfound != 0 and found ==0:
-            # jan seems to hash even if it has been found before
-            if found == 0:
-                hatch="/"
-            else:
+            # col found, so this AA *has been* used before
+            # d = DNA, r = repeat
+            d, r = used_colors_dict[col][0] # tuple
+            try:
+                assert r == repeat
+            except AssertionError:
+                print('start, end or error')
+                print(r)
+                print(repeat)
+            if dna == d or dna == 'end':
+                # NO HATCH as DNA found before
                 hatch = ""
+            else:
+                # new version of this AA ie syn mutation in DNA
+                # add a hatch, either same as before or new
+                if dna in hatch_dict:
+                    hatch = hatch_dict[dna]
+                else:
+                    try:
+                        hatch = hatch_patterns.pop()
+                        hatch_dict[dna] = hatch
+                    except IndexError:
+                        print("OUT OF HATCH PATTERNS")
+                        hatch = "x"
+
         # could put logic here to make it white box
         axes[0].barh(i,width, left=start - width, color=col_dict[repeat],
                      hatch=hatch, align='center', edgecolor='black')
@@ -177,3 +185,15 @@ axes[1].tick_params(axis=u'both', which=u'both',length=0)
 fig.tight_layout()
 fig.savefig('outfile.pdf')
 plt.show()
+
+# this is the repeats info
+with open('datafile.txt', 'w') as f:
+    for strain in strains:
+        data = strains[strain]
+        string = strain + ": "
+        for d, r in data:
+            if d == 'START' or d == 'END':
+                pass
+            else:
+                string = string + "(%s-%s)"%(d,r)
+        f.write(string + "\n")
