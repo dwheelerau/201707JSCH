@@ -108,7 +108,7 @@ for i,strain in enumerate(strains.keys()):
             hatch=""
         else:
             # pep same, but DNA diff, make hatch
-            found,notfound = 0,0
+            found = 0
             for d, r in used_colors_dict[col]:
                 try:
                     assert r == repeat
@@ -116,15 +116,15 @@ for i,strain in enumerate(strains.keys()):
                     print('start, end or error')
                     print(r)
                     print(repeat)
-                if dna != d:
-                    notfound+=1
-                else:
+                if dna == d:
                     found+=1
+                else:
+                    pass
             used_colors_dict[col].append((dna, repeat))
             # ocnce it is found, dont hatch it again
             #if notfound != 0 and found ==0:
             # jan seems to hash even if it has been found before
-            if notfound != 0:
+            if found == 0:
                 hatch="/"
             else:
                 hatch = ""
