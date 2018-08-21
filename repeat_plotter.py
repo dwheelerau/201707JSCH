@@ -120,7 +120,7 @@ for i,strain in enumerate(strains.keys()):
                 print('start, end or error')
                 print(r)
                 print(repeat)
-            if dna == d or dna == 'end':
+            if dna == d or dna == 'END':
                 # NO HATCH as DNA found before
                 hatch = ""
             else:
@@ -161,9 +161,33 @@ for norep in start_end:
     col_dict.pop(norep, None)
     
 # custom key on right plot
-col2 = col_dict.values()
-labels2 = col_dict.keys()
-axes[1].barh(np.arange(len(labels2)),len(labels2)*[0.3], left=0.1, color=col2, align='center')
+col2 = []
+labels2 = []
+hatch2 = []
+for col in used_colors_dict:
+    dna, pep = used_colors_dict[col][0]
+    if dna == "START" or dna == 'END':
+        pass
+    else:
+        col2.append(col)
+        labels2.append("%s:%s"%(pep,dna))
+        hatch2.append("")
+        # now check if any other translations
+        for altdna in hatch_dict:
+            if str(Seq(altdna).translate()) == pep:
+                ll = "%s:%s"%(pep,altdna)
+                if ll not in labels2:
+                    sym = hatch_dict[altdna]
+                    col2.append(col)
+                    labels2.append(ll)
+                    hatch2.append(sym)
+
+w = 0.5
+s = 1
+for i, y in enumerate(col2):
+    axes[1].barh(labels2[i],w, left=0.1, color=col2[i], align='center', edgecolor='black', hatch=hatch2[i])
+    s += 1
+
 axes[1].set_xbound((0,1))
 axes[1].set_xticklabels('')
 
