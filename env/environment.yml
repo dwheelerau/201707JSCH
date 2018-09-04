@@ -44,7 +44,6 @@ dependencies:
   - wheel=0.31.1=py27_0
   - bbmap=38.06=0
   - bcftools=1.8=2
-  - fastqc=0.11.7=pl5.22.0_1
   - hisat2=2.1.0=py27h2d50403_2
   - htseq=0.6.1.post1=py27h24bf2e0_2
   - htslib=1.8=1
